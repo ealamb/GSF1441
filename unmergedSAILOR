@@ -1,0 +1,26 @@
+cd /N/slate/ealamb/GSF1440_1
+mkdir sailor
+cd /N/slate/ealamb/GSF1440_1/results/aligned
+scp GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+scp GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+scp GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+scp GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+scp GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+scp GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+cd /N/project/HundleyLab/FLARE
+scp c.elegans.WS275.snps.nostrand.sorted.bed /N/slate/ealamb/GSF1440_1/sailor
+scp -r workflow_sailor /N/slate/ealamb/GSF1440_1/sailor
+cd /N/slate/ealamb/GSF1440_1/sailor
+cd workflow_sailor
+chmod +x scripts
+chmod +x Snakefile
+conda install -c bioconda -c conda-forge snakemake
+cd /N/slate/ealamb/GSF1440_1/sailor
+
+bamtools convert -format json -in GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep1.json
+bamtools convert -format json -in GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep2.json
+bamtools convert -format json -in GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep3.json
+
+bamtools convert -format json -in GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep1.json
+bamtools convert -format json -in GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep2.json
+bamtools convert -format json -in GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep3.json
