@@ -1,26 +1,87 @@
+#Make sure you are in conda base environment
+module load conda
+
+#Make a new environment for RNA seq analyses
+conda create --name rnaseq python=3.12.3
+
+#Activate your new environment
+conda activate rnaseq
+
+#Install these software to your new environment using conda and entrez-direct 
+conda install -c bioconda -c conda-forge entrez-direct snakemake fastqc seqtk star samtools subread singularity
+
+#Move into your sequencing experiment directory
 cd /N/slate/ealamb/GSF1440_1
+
+#Make a new directory for sailor analyses
 mkdir sailor
+
+#On personal device, make .json file in the text editor (by making a plain text file with a name ending in .json) for each replicate with this code modified with directory names, file names, and paths for your experiment: 
+{
+  "samples_path":"/N/slate/ealamb/GSF1440_1/sailor/",
+  "samples": [
+    "GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam"
+  ],
+  "reverse_stranded":true,
+  "reference_fasta": "/N/slate/ealamb/GSF1440_1/genome/assembly.fasta",
+  "known_snps": "/N/slate/ealamb/GSF1440_1/cesnps",
+  "edit_type": "AG",
+  "output_dir": "/N/slate/ealamb/GSF1440_1/results/flare"
+}
+
+#On personal device terminal, copy these .json files to your sailor slate directory
+
+scp /Users/emmalamb/Desktop/205R1.json ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/sailor   
+
+#Move into the directory where STAR alignments for your sequencing replicates are stored. 
 cd /N/slate/ealamb/GSF1440_1/results/aligned
+
+#Copy the alignment files (.bam) into your sailor directory
 scp GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
 scp GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
 scp GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
 scp GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
 scp GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
 scp GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam /N/slate/ealamb/GSF1440_1/sailor
+
+#Move to the Hundley lab project space for FLARE 
 cd /N/project/HundleyLab/FLARE
+
+#Copy the bed file containing known C. elegans snps into your sailor directory 
 scp c.elegans.WS275.snps.nostrand.sorted.bed /N/slate/ealamb/GSF1440_1/sailor
+
+#Copy the scripts and Snakefile for running sailor into your sailor directory via the workflow_sailor directory
 scp -r workflow_sailor /N/slate/ealamb/GSF1440_1/sailor
+
+#Return to your sailor directory and make all of these files executable
 cd /N/slate/ealamb/GSF1440_1/sailor
+
 cd workflow_sailor
-chmod +x scripts
+
 chmod +x Snakefile
-conda install -c bioconda -c conda-forge snakemake
+
+cd scripts
+
+chmod +x *.py
+chmod +x *.sh
+chmod +x *.bedtest
+
+#Return to your sailor directory and load singularity NOTE: singularity must be reloaded each time you run snakemake on a replicate
+#NOTE: If you run snakemake once and it fails, make sure your flare results directories are empty before trying again
 cd /N/slate/ealamb/GSF1440_1/sailor
 
-bamtools convert -format json -in GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep1.json
-bamtools convert -format json -in GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep2.json
-bamtools convert -format json -in GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_205_rep3.json
+module load singularity
 
-bamtools convert -format json -in GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep1.json
-bamtools convert -format json -in GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep2.json
-bamtools convert -format json -in GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam -out GSF1440_1_206_rep3.json
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/205R1.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare' -j1
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/205R2.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare2' -j1
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/205R3.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare3' -j1
+
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206R1.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare4' -j1
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206R2.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare5' -j1
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206R3.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare6' -j1
+
