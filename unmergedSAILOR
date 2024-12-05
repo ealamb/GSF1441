@@ -85,3 +85,29 @@ snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile
 snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206R2.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare5' -j1
 snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206R3.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flare6' -j1
 
+
+cd /N/slate/ealamb/GSF1440_1/results/flare/7_scored_outputs
+scp *.bed /N/slate/ealamb/GSF1440_1/sailor
+
+#In personal terminal upload these files (found in the OneDrive) to your sailor directory
+cd desktop
+scp c.elegans.WS275.annotation.final.bed ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/sailor
+
+scp c_elegans.PRJNA13758.WS275.canonical_geneset.gtf ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/sailor
+
+scp annotator.sailor.py ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/sailor
+
+#Now, back in slate annotate using the following commands and export bed file from result directory 7 to your computer
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/WTrep1.annotated.sites.csv
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/WTrep2.annotated.sites.csv
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/WTrep3.annotated.sites.csv
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/6rep1.annotated.sites.csv
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/6rep2.annotated.sites.csv
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/6rep3.annotated.sites.csv
+
+scp ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/sailor/*.csv ~/Desktop/
