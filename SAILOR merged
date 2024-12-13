@@ -1,0 +1,17 @@
+module load conda 
+
+conda activate rnaseq 
+
+cd /N/slate/ealamb/GSF1440_1/results/aligned
+
+samtools merge -@ 8 /N/slate/ealamb/GSF1440_1/sailor/GSF31441-205.merged.bam GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.bam GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.bam GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.bam
+samtools merge -@ 8 /N/slate/ealamb/GSF1440_1/sailor/GSF31441-206.merged.bam GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.bam GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.bam GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.bam
+
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/205M.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flareM205' -j1
+snakemake --snakefile /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/Snakefile --configfile /N/slate/ealamb/GSF1440_1/sailor/206M.json --use-singularity --singularity-args '--bind /N/slate/ealamb/GSF1440_1 --bind /N/slate/ealamb/GSF1440_1/genome --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor/scripts --bind /N/slate/ealamb/GSF1440_1/sailor/workflow_sailor --bind /N/slate/ealamb/GSF1440_1/results/flareM206' -j1
+
+
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-205.merged.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-205.merged.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/WTrep2.annotated.sites.csv
+python3 annotator.sailor.py --gtf c_elegans.PRJNA13758.WS275.canonical_geneset.gtf --fwd GSF1441-206.merged.bam.fwd.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --rev GSF1441-206.merged.bam.rev.readfiltered.formatted.varfiltered.snpfiltered.ranked.bed --wb c.elegans.WS275.annotation.final.bed --o /N/slate/ealamb/GSF1440_1/sailor/6merged.annotated.sites.csv
+
+scp ealamb@quartz.uits.iu.edu:/N/slate/ealamb/GSF1440_1/results/flareM205/*.csv ~/Desktop/
