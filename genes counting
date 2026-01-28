@@ -1,0 +1,82 @@
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o wtR1gene_counts.txt \
+  GSF1441neural205-1_S11_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o wtR2gene_counts.txt \
+  GSF1441-neural205-2_S15_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o wtR3gene_counts.txt \
+  GSF1441-neural205-3_S19_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o adr2R1gene_counts.txt \
+  GSF1441-neural206-1_S12_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o adr2R2gene_counts.txt \
+    GSF1441-neural206-2_S16_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+
+featureCounts \
+  -a /N/slate/ealamb/GSF1440_1/genome/annotation.gtf \
+  -o adr2R3gene_counts.txt \
+  GSF1441-neural206-3_S20_R1_001_Aligned.sortedByCoord.out.dedup.bam
+
+
+###To count the number of genes in each: 
+
+awk 'NR>2 && $7>0 {n++} END {print n}' wtR1gene_counts.txt
+
+
+
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt wtR1gene_counts.txt > WTR1counts.filtered.txt
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt wtR2gene_counts.txt > WTR2counts.filtered.txt
+
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt wtR3gene_counts.txt > WTR3counts.filtered.txt
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt adr2R1gene_counts.txt > adr2R1counts.filtered.txt
+
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt adr2R2gene_counts.txt > adr2R2counts.filtered.txt
+
+awk '
+NR<=2 {print; next}
+FNR==NR {genes[$1]; next}
+$1 in genes
+' introneditGeneID.txt adr2R3gene_counts.txt > adr2R3counts.filtered.txt
+
+
+
