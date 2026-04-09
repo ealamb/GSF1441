@@ -1,0 +1,145 @@
+##Before running JUM you need *.Aligned.sortedByCoord.out.bam, *.Aligned.sortedByCoord.out.sam, and SJ.tab.out files for each sample
+
+cd /N/slate/ealamb/GSF1440_1/star_output
+
+samtools view -h -o SRR24086912_Aligned.sortedByCoord.out.sam SRR24086912_Aligned.sortedByCoord.out.bam
+samtools view -h -o SRR24086913_Aligned.sortedByCoord.out.sam SRR24086913_Aligned.sortedByCoord.out.bam
+samtools view -h -o SRR24086914_Aligned.sortedByCoord.out.sam SRR24086914_Aligned.sortedByCoord.out.bam
+##OR
+
+for BAM in *.bam; do
+    SAM=${BAM%.bam}.sam
+    samtools view -h -o ${SAM} ${BAM}
+done
+
+
+
+
+tar -czvf /N/scratch/ealamb/GSF2848.tar.gz -C /N/slate/ealamb GSF2848
+
+
+watch -n 10 ls -lh /N/slate/ealamb/GSF1440_1/star_output/*Log.final.out
+
+
+
+# Make changes to the experiment design file before running Rscript 
+
+cd /N/slate/ealamb/JUM_3.0.0/
+
+nano experiment_design.txt 
+
+
+      condition
+SRR24086912 A
+SRR24086912 A
+SRR24086912 B
+
+
+
+
+# Enter the JUM_diff/ folder and run the R script with a user-provided experiment design file
+
+cd JUM_diff/
+
+module load bioconductor 
+
+Rscript /N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0/R_script_JUM.R experiment_design.txt > outputFile.Rout 2> errorFile.Rout
+
+# R_script_JUM.R will output a file called AS_differential.txt. Make sure that Step 2 successfully generates a new file called AS_differential.txt in the JUM_diff/ folder. Otherwise you can refer to the files outputFile.Rout and errorFile.Rout for troubleshooting  
+
+
+# Now run JUM_B.sh in the JUM_diff/ folder as follows: (It is advised to use p value curoff < 0.05. I used 1 for initial running)
+
+bash /N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0/JUM_B.sh --Folder /N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0 --Test pvalue --Cutoff 1 --TotalFileNum 6 --Condition1_fileNum_threshold 2 --Condition2_fileNum_threshold 2 --Condition1SampleName ctrl_1,ctrl_2,ctrl_3 --Condition2SampleName treat_1,treat_2,treat_3
+
+# JUM_B.sh will generate a new folder called FINAL_JUM_OUTPUT_$Test_$Cutoff that contains the results for downstream analysis.
+
+
+
+##### Running JUM_C.sh #####
+
+# Before you start, make sure you download annotation_transcriptname.gtf.refflat.txt file on Onedrive (Boyoon Yang > Bioinformatics > JUM folder) and put it in the JUM_diff/FINAL_JUM_OUTPUT_pvalue_1 folder
+# Note that this refflat file has transcript name in both column 1 and 2. Ideally, column 1 should have gene names instead so this has to be fixed in the future (had errors when putting gene names in column 1)
+# Run JUM_C.sh in the folder FINAL_JUM_OUTPUT_$Test_$Cutoff as follows:
+
+bash /N/slate/ealamb/GSF1440_1/JUM_3.0.0/JUM_C.sh --Folder /N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0 --Test pvalue --Cutoff 1 --TotalCondition1FileNum 3 --TotalCondition2FileNum 3 --REF annotation.gtf.refflat.txt
+
+# As soon as JUM_C.sh starts running, all output files from JUM_B.sh is overwritten by JUM_C.sh. If you face any error in this step, or wish to rerun JUM_C.sh, you will have to delete the output folder of JUM_B.sh, “FINAL_JUM_OUTPUT_pvalue_1” and start over from running JUM_B.sh. 
+# JUM_C.sh will output files with the suffix: *_final_simplified.txt and *_final_detailed.txt. These are the final output files from JUM.
+
+
+
+# After completion, copy and paste the output files to view results 
+
+# In Mac terminal, 
+/FINAL_JUM_OUTPUT_pvalue_1/AS* ~/Desktop/
+
+
+
+
+
+#!/bin/bash
+#SBATCH --job-name=JUM_pipeline
+#SBATCH --output=/N/scratch/ealamb/jum_%j.out
+#SBATCH --error=/N/scratch/ealamb/jum_%j.err
+#SBATCH --partition=general
+#SBATCH --account=r01267
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --time=24:00:00
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=32G
+
+# ==========================
+
+# Exit immediately if a command fails
+set -e
+
+# Load modules or activate environment
+module load conda/25.3.0
+
+#Imports shell setup
+conda activate jum
+
+#Make sure perl modules are available
+export PERL5LIB=~/perl5/lib/perl5:$PERL5LIB
+export PATH=~/perl5/bin:$PATH
+
+#File paths
+JUMA_SCRIPT="/N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0/R_script_JUM.R"
+JUMB_SCRIPT="/N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0/JUM_B.sh"
+JUMC_SCRIPT="/N/slate/ealamb/GSF1440_1/jum/JUM_3.0.0/JUM_C.sh"
+DESIGN_FILE="/N/slate/ealamb/GSF1440_1/jum/experiment_design.txt"
+A_OUT_FILE="/N/scratch/ealamb/A_outputFile.Rout"
+A_ERR_FILE="/N/scratch/ealamb/A_errorFile.Rout"
+
+
+echo "Starting JUM_a..."
+
+# JUM A
+Rscript ${JUMA_SCRIPT} ${DESIGN_FILE} \
+--Analysis JUM_A \
+--JuncThreshold 5 \
+--Condition1_fileNum_threshold 1 \
+--Condition2_fileNum_threshold 0 \
+--IRthreshold 5 \
+--Readlength 100 \
+--Thread 3 \
+> ${A_OUT_FILE} 2> ${A_ERR_FILE}
+
+echo "Finished JUM_a successfully!"
+
+echo "Starting JUM_b..."
+
+bash ${JUMB_SCRIPT} --Folder /N/slate/ealamb/GSF1440_1/JUM_3.0.0 --Test pvalue --Cutoff 1 --TotalFileNum 3 --Condition1_fileNum_threshold 1 --Condition2_fileNum_threshold 0 --Condition1SampleName SRR24086912,SRR24086913 --Condition2SampleName SRR24086914
+
+echo "Finished JUM_b successfully!"
+
+echo "Starting JUM_c..."
+
+bash ${JUMC_SCRIPT} --Folder /N/slate/ealamb/GSF1440_1/JUM_3.0.0 --Test pvalue --Cutoff 1 --TotalCondition1FileNum 2 --TotalCondition2FileNum 1 --REF /N/slate/ealamb/GSF1440_1/jum/refFlat.txt
+
+echo "Finished JUM_c successfully!"
+
+
+
