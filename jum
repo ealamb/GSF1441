@@ -49,3 +49,14 @@ bash /N/scratch/ealamb/ssNorris/JUM_3.0.0/JUM_A.sh --Folder /N/scratch/ealamb/ss
 Rscript /N/scratch/ealamb/ssNorris/JUM_3.0.0/temp_JUM_A_run/R_script_mod_JUM.R experiment_design.txt > outputFile.Rout 2> errorFile.Rout
 
 
+bash /N/scratch/ealamb/ssNorris/JUM_3.0.0/temp_JUM_A_run/JUM_B.sh --Folder /N/scratch/ealamb/ssNorris/JUM_3.0.0/JUM_diff --Test pvalue --Cutoff 1.0 --TotalFileNum 6 --Condition1_fileNum_threshold 2 --Condition2_fileNum_threshold 2 --Condition1SampleName control1,control2,control3 --Condition2SampleName treat1,treat2,treat3
+
+bash /N/scratch/ealamb/ssNorris/JUM_3.0.0/temp_JUM_A_run/JUM_C.sh --Folder /N/scratch/ealamb/ssNorris/JUM_3.0.0/JUM_diff/FINAL_JUM_OUTPUT_pvalue_1.0/temp_JUM_C_run --Test pvalue --Cutoff 1.0 --TotalCondition1FileNum 3 --TotalCondition2FileNum 3 --REF refFlat.txt
+
+
+
+
+
+
+
+
